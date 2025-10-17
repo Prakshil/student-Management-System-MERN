@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import ConnectDB from './Config/dbConnect.js';
 import studentRoute from './Routes/student.route.js';
+import userRoute from './Routes/user.route.js';
 dotenv.config();
 
 const app = express();
@@ -28,3 +29,10 @@ app.use('/api/v1', studentRoute);
 // https://localhost:5000/api/v1/student
 // https://localhost:5000/api/v1/update/student
 // https://localhost:5000/api/v1/delete/student
+
+app.use('/api/v1', userRoute);
+// https://localhost:5000/api/v1/create/user
+// https://localhost:5000/api/v1/get/users
+// https://localhost:5000/api/v1/user
+// https://localhost:5000/api/v1/update/user
+// https://localhost:5000/api/v1/delete/user

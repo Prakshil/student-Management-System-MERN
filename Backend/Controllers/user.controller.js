@@ -3,11 +3,12 @@ import express from "express";
 import ApiError from "../utils/ApiError";
 import ApiResponse from "../utils/ApiResponse";
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 
 
 
-const createUser = async (req, res) => {
+const signUp = async (req, res) => {
     try {
         const {username ,email, password, phone, dob, age, gender, address, skills, profileimage} = req.body;
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -28,15 +29,33 @@ const createUser = async (req, res) => {
         if (!newUser) {
             return res.status(400).json(new ApiError("User creation failed"));
         }
-        res.status(201).json(new ApiResponse(true, "User created successfully", newUser));
+        const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
+        res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+        res.status(201).json(new ApiResponse(true, "User created successfully", { user: newUser, token }));
     } catch (error) {
         res.status(400).json(new ApiError("Failed to create user", error.message));
     }
 };
-const getAllUsers = async (req, res) => {
+const login = async (req, res) => {
     try {
-        const users = await User.find();
-        res.status(200).json(new ApiResponse(true, "Users retrieved successfully", users));
+        const token = req.cookies.token;
+        if (token) {
+            return res.status(200).json(new ApiResponse(true, "User already logged in"));
+        }
+        const { email, password } = req.body;
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json(new ApiError("User not found"));
+        }
+        if (password.length < 6 || password.length > 12) {
+            return res.status(400).json(new ApiError("Password length must be between 6 and 12 characters"));
+        }
+
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(401).json(new ApiError("Invalid credentials"));
+        }
+        res.status(200).json(new ApiResponse(true, "Login successful", user));
     } catch (error) {
         res.status(500).json(new ApiError("Failed to retrieve users", error.message));
     }
@@ -76,4 +95,4 @@ const deleteUser = async (req, res) => {
         res.status(500).json(new ApiError("Failed to delete user", error.message));
     }
 };
-export { createUser, getAllUsers, singleUser, updateUser, deleteUser }; 
+export { signUp, login, singleUser, updateUser, deleteUser };

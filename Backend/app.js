@@ -1,5 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import ConnectDB from './Config/dbConnect.js';
 import studentRoute from './Routes/student.route.js';
 import userRoute from './Routes/user.route.js';
@@ -22,7 +24,12 @@ ConnectDB()
     });
 
 
+app.use(cors({
+    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    credentials: true,
+}));
 app.use(express.json());
+app.use(cookieParser());
 
 app.use('/api/v1', studentRoute);
 // https://localhost:5000/api/v1/create/student

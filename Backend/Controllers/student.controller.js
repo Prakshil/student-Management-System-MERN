@@ -1,6 +1,11 @@
 import ApiError from '../utils/ApiError.js';
 import ApiResponse from "../utils/ApiResponse.js";
-import Student from "../models/student.model.js"; // adjust path if different
+import Student from "../Models/Student.model.js"; // adjust path if different
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import cookieParser from 'cookie-parser';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const createStudent = async (req, res, next) => {
   try {
@@ -19,8 +24,19 @@ const createStudent = async (req, res, next) => {
 };    
 const getAllStudents = async (req, res) => {
     try {
-        const students = await Student.find();
-        res.status(200).json(new ApiResponse(200, students, "Students fetched successfully"));
+        const {token} = req.cookies;
+        if (!token) {
+            return res.status(401).json(new ApiError("Unauthorized: No token provided"));
+        }
+        
+        const decoded = await jwt.verify(token, process.env.JWT_SECRET);
+        if (!decoded) {
+            return res.status(401).json(new ApiError("Unauthorized: Invalid token"));
+        }
+        const {id} = decoded;
+        const user = await Student.findById(id);
+        res.status(200).json(new ApiResponse(200, user, "User fetched successfully"));
+   
     } catch (error) {
         throw new ApiError(500, "Something went wrong while fetching all students");
     }

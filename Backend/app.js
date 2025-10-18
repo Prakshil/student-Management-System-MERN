@@ -23,6 +23,7 @@ ConnectDB()
 
 
 app.use(express.json());
+
 app.use('/api/v1', studentRoute);
 // https://localhost:5000/api/v1/create/student
 // https://localhost:5000/api/v1/get/students

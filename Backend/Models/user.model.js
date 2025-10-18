@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         trim: true,
-        minlength: 3
+        minLength: 3
     },
     email: {
         type: String,
@@ -24,10 +24,10 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        minlength: 6,
+        minLength: 6,
         unique: true,
         // lowercase: true,
-        maxlength: 12,
+        maxLength: 12,
         validate(value) {
             if (!validator.isStrongPassword(value)) {
                 throw new Error('Password must be strong including uppercase, lowercase, number and symbol.');

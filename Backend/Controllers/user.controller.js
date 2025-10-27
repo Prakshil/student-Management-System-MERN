@@ -25,31 +25,32 @@ async function validateEmail(email) {
 
 
 const signUp = async (req, res) => {
-    try {
-        const {username ,email, password, phone, dob, age, gender, address, skills, profileimage} = req.body;
-        const emailregex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-        if (!emailregex.test(email)) {
-            return res.status(400).json(new ApiError(400, "Please provide a valid email address"));
-        }
-        const isEmailValid = await validateEmail(email);
-        if (!isEmailValid) {
-            return res.status(400).json(new ApiError(400, "Invalid email domain"));
-        }
-        const hashedPassword = await bcrypt.hash(password, 10);
-        req.body.password = hashedPassword;
-        
-        const user = new User({
-            username,
-            email,
-            password,
-            phone,
-            dob,
-            age,
-            gender,
-            address,
-            skills,
-            profileimage
-        });
+  try {
+    const { username, email, password, phone, dob, age, gender, address, skills, profileimage } = req.body;
+    const normalizedGender = typeof gender === "string" ? gender.trim().toLowerCase() : gender;
+    const emailregex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+    if (!emailregex.test(email)) {
+        return res.status(400).json(new ApiError(400, "Please provide a valid email address"));
+    }
+    const isEmailValid = await validateEmail(email);
+    if (!isEmailValid) {
+        return res.status(400).json(new ApiError(400, "Invalid email domain"));
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    req.body.password = hashedPassword;
+    
+    const user = new User({
+      username,
+      email,
+      password: req.body.password, // already hashed above
+      phone,
+      dob,
+      age,
+      gender: normalizedGender,
+      address,
+      skills,
+      profileimage
+    });
     const newUser = await user.save();
        
         if (!newUser) {
@@ -68,40 +69,48 @@ const signUp = async (req, res) => {
 
 
 
-
 const login = async (req, res) => {
-    try {
-        const token = req.cookies.token;
-        if (token) {
-            return res.status(200).json(new ApiResponse(true, "User already logged in"));
-        }
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json(new ApiError(400, "Email and password are required"));
+    }
 
-        const { email, password } = req.body;
-        const user = await User.findOne({ email });
-        
-        if (!user) {
-            return res.status(404).json(new ApiError(404, "User not found"));
-        }
-        
-        if (password.length < 6 || password.length > 12) {
-            return res.status(400).json(new ApiError(400, "Password length must be between 6 and 12 characters"));
-        }
+    // Ensure password is selected even if schema has select:false
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) {
+      return res.status(404).json(new ApiError(404, "User not found"));
+    }
 
-        const isMatch = await bcrypt.compare(password, user.password);
-        
-        if (!isMatch) {
-            return res.status(401).json(new ApiError(401, "Invalid credentials"));
-        }
+    // Optional basic length guard for plain password only
+    if (password.length < 6) {
+      return res.status(400).json(new ApiError(400, "Password too short"));
+    }
 
-    const newToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '1d' });
-    res.cookie('token', newToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json(new ApiError(401, "Invalid credentials"));
+    }
+
+    const newToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN || "1d",
+    });
+
+    res.cookie("token", newToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    });
+
     const safeUser = user.toObject ? user.toObject() : user;
     delete safeUser.password;
-    res.status(200).json(new ApiResponse(true, "Login successful", safeUser));
 
-    } catch (error) {
-        res.status(500).json(new ApiError(500, "Failed to retrieve users", [error.message]));
-    }
+    return res
+      .status(200)
+      .json(new ApiResponse(true, "Login successful", { user: safeUser, token: newToken }));
+  } catch (error) {
+    return res.status(500).json(new ApiError(500, "Failed to login", [error.message]));
+  }
 };
 
 
@@ -120,7 +129,6 @@ const singleUser = async (req, res) => {
 
 
 
-
 const updateUser = async (req, res) => {
     try {
         const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
@@ -132,7 +140,6 @@ const updateUser = async (req, res) => {
         res.status(400).json(new ApiError(400, "Failed to update user", [error.message]));
     }
 };
-
 
 
 

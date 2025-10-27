@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         trim: true,
-        minLength: 3
+        minlength: 3
     },
     email: {
         type: String,
@@ -24,15 +24,7 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        minLength: 6,
-        unique: true,
-        // lowercase: true,
-        maxLength: 12,
-        validate(value) {
-            if (!validator.isStrongPassword(value)) {
-                throw new Error('Password must be strong including uppercase, lowercase, number and symbol.');
-            }
-        }
+        select: false // do not return hashed password by default
     },
     phone:{
         type: Number,
@@ -49,7 +41,13 @@ const userSchema = new mongoose.Schema({
     },
     gender: {
         type: String,
-        enum: ['Male', 'Female', 'Other']
+        required: [true, "Gender is required"],
+        trim: true,
+        lowercase: true,
+        enum: {
+            values: ["male", "female", "other"],
+            message: "Gender must be 'male', 'female' or 'other'",
+        },
     },
     address: {
         type: String,
@@ -69,8 +67,4 @@ const userSchema = new mongoose.Schema({
     timestamps: true
 }); 
 
-
-
-const User = mongoose.model('User', userSchema);
-
-export default User;
+export default mongoose.model("User", userSchema);

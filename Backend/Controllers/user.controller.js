@@ -4,6 +4,8 @@ import ApiResponse from "../utils/ApiResponse.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import dns from 'dns';
+import { uploadOnCloudinary } from "../utils/Cloudinary.js";
+import fs from 'fs';
 
 async function validateEmail(email) {
     
@@ -39,18 +41,35 @@ const signUp = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     req.body.password = hashedPassword;
     
-    const user = new User({
-      username,
-      email,
-      password: req.body.password, // already hashed above
-      phone,
-      dob,
-      age,
-      gender: normalizedGender,
-      address,
-      skills,
-      profileimage
-    });
+        // If a file is uploaded, push to Cloudinary and prefer that URL
+        let profileImg = profileimage;
+        if (req.file?.path) {
+            try {
+                const uploadRes = await uploadOnCloudinary(req.file.path);
+                if (!uploadRes?.secure_url) {
+                    try { fs.unlinkSync(req.file.path); } catch {}
+                    return res.status(500).json(new ApiError(500, "Failed to upload image to Cloudinary"));
+                }
+                profileImg = uploadRes.secure_url;
+            } finally {
+                try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch {}
+            }
+        }
+
+        const userDoc = {
+            username,
+            email,
+            password: req.body.password, // already hashed above
+            phone,
+            dob,
+            age,
+            gender: normalizedGender,
+            address,
+            skills,
+        };
+        if (profileImg) userDoc.profileimage = profileImg; // only set when provided, otherwise let mongoose default apply
+
+        const user = new User(userDoc);
     const newUser = await user.save();
        
         if (!newUser) {
@@ -131,7 +150,21 @@ const singleUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
     try {
-        const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+                // If a new file is uploaded, send to Cloudinary and set profileimage in body
+                if (req.file?.path) {
+                    try {
+                        const uploadRes = await uploadOnCloudinary(req.file.path);
+                        if (!uploadRes?.secure_url) {
+                            try { fs.unlinkSync(req.file.path); } catch {}
+                            return res.status(500).json(new ApiError(500, "Failed to upload image to Cloudinary"));
+                        }
+                        req.body.profileimage = uploadRes.secure_url;
+                    } finally {
+                        try { if (req.file?.path) fs.unlinkSync(req.file.path); } catch {}
+                    }
+                }
+
+                const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
         if (!user) {
             return res.status(404).json(new ApiError(404, "User not found"));
         }   

@@ -8,55 +8,55 @@ const createStudent = async (req, res, next) => {
     // const newStudent = await Student.create(req.body);
     // const doc = new Student(req.body);
     // const newStudent = await doc.save();
-    const {firstname, lastname, email,age,phone,gender} = req.body;
-    const student = new Student({firstname, lastname, email,age,phone,gender});
+        const { firstname, lastname, email, age, phone, gender, profileImage } = req.body;
+        const student = new Student({ firstname, lastname, email, age, phone, gender, profileImage });
     const newStudent = await student.save();
 
     res.status(201).json(new ApiResponse(201, newStudent, "Student created successfully"));
-  } catch (error) {
-    throw new ApiError(500, "Something went wrong while creating student");
-  }
+    } catch (error) {
+        return next(new ApiError(500, "Something went wrong while creating student", [error.message]));
+    }
 };    
-const getAllStudents = async (req, res) => {
+const getAllStudents = async (req, res, next) => {
     try {
         const students = await Student.find();
         res.status(200).json(new ApiResponse(200, students, "Students fetched successfully"));
     } catch (error) {
-        throw new ApiError(500, "Something went wrong while fetching all students");
+        return next(new ApiError(500, "Something went wrong while fetching all students", [error.message]));
     }
 };
-const singleStudent = async (req, res) => {
+const singleStudent = async (req, res, next) => {
     try {
         const student = await Student.findById(req.params.id);
         if (!student) {
-            throw new ApiError(404, "Student not found");
+            return next(new ApiError(404, "Student not found"));
         }
         res.status(200).json(new ApiResponse(200, student, "Student fetched successfully"));
     } catch (error) {
-        throw new ApiError(500, "Something went wrong while fetching student");
+        return next(new ApiError(500, "Something went wrong while fetching student", [error.message]));
     }
 };
-const updateStudent = async (req, res) => {
+const updateStudent = async (req, res, next) => {
     try {
         const id = req.params.id;
         const updatedStudent = await Student.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
         if (!updatedStudent) {
-            throw new ApiError(404, "Student not found");
+            return next(new ApiError(404, "Student not found"));
         }
         res.status(200).json(new ApiResponse(200, updatedStudent, "Student updated successfully"));
     } catch (error) {
-        throw new ApiError(500, "Something went wrong while updating student");
+        return next(new ApiError(500, "Something went wrong while updating student", [error.message]));
     }
 };
-const deleteStudent = async (req, res) => {
+const deleteStudent = async (req, res, next) => {
     try {
         const student = await Student.findByIdAndDelete(req.params.id);
         if (!student) {
-            throw new ApiError(404, "Student not found");
+            return next(new ApiError(404, "Student not found"));
         }
         res.status(200).json(new ApiResponse(200, {}, "Student deleted successfully"));
     } catch (error) {
-        throw new ApiError(500, "Something went wrong while deleting student");
+        return next(new ApiError(500, "Something went wrong while deleting student", [error.message]));
     }
 };
 

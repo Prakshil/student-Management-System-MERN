@@ -61,7 +61,7 @@ const signUp = async (req, res) => {
     res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax' });
     const safeUser = newUser.toObject ? newUser.toObject() : newUser;
     delete safeUser.password;
-    res.status(201).json(new ApiResponse(true, "User created successfully", { user: safeUser, token }));
+    res.status(201).json(new ApiResponse(201, { user: safeUser, token }, "User created successfully"));
     } catch (error) {
         res.status(400).json(new ApiError(400, "Failed to create user", [error.message]));
     }
@@ -105,9 +105,9 @@ const login = async (req, res) => {
     const safeUser = user.toObject ? user.toObject() : user;
     delete safeUser.password;
 
-    return res
-      .status(200)
-      .json(new ApiResponse(true, "Login successful", { user: safeUser, token: newToken }));
+        return res
+            .status(200)
+            .json(new ApiResponse(200, { user: safeUser, token: newToken }, "Login successful"));
   } catch (error) {
     return res.status(500).json(new ApiError(500, "Failed to login", [error.message]));
   }
@@ -121,7 +121,7 @@ const singleUser = async (req, res) => {
         if (!user) {
             return res.status(404).json(new ApiError(404, "User not found"));
         }
-        res.status(200).json(new ApiResponse(true, "User retrieved successfully", user));
+    res.status(200).json(new ApiResponse(200, user, "User retrieved successfully"));
     } catch (error) {
         res.status(500).json(new ApiError(500, "Failed to retrieve user", [error.message]));
     }
@@ -135,7 +135,7 @@ const updateUser = async (req, res) => {
         if (!user) {
             return res.status(404).json(new ApiError(404, "User not found"));
         }   
-        res.status(200).json(new ApiResponse(true, "User updated successfully", user));
+    res.status(200).json(new ApiResponse(200, user, "User updated successfully"));
     } catch (error) {
         res.status(400).json(new ApiError(400, "Failed to update user", [error.message]));
     }
@@ -149,7 +149,7 @@ const deleteUser = async (req, res) => {
         if (!user) {
             return res.status(404).json(new ApiError(404, "User not found"));
         }
-        res.status(200).json(new ApiResponse(true, "User deleted successfully"));
+    res.status(200).json(new ApiResponse(200, null, "User deleted successfully"));
     }
 
      catch (error) {

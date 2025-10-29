@@ -5,6 +5,7 @@ import cors from 'cors';
 import ConnectDB from './Config/dbConnect.js';
 import studentRoute from './Routes/student.route.js';
 import userRoute from './Routes/user.route.js';
+import errorHandler from './Middlewares/errorHandler.js';
 dotenv.config();
 
 const app = express();
@@ -31,6 +32,11 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+// Simple healthcheck
+app.get('/healthz', (req, res) => {
+    res.status(200).json({ ok: true });
+});
+
 app.use('/api/v1', studentRoute);
 // https://localhost:5000/api/v1/create/student
 // https://localhost:5000/api/v1/get/students
@@ -44,3 +50,6 @@ app.use('/api/v1', userRoute);
 // https://localhost:5000/api/v1/user
 // https://localhost:5000/api/v1/update/user
 // https://localhost:5000/api/v1/delete/user
+
+// Global error handler should be the last middleware
+app.use(errorHandler);

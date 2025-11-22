@@ -68,7 +68,7 @@ node_modules/
    CLOUDINARY_CLOUD_NAME=dfw7j82rh
    CLOUDINARY_API_KEY=985525723733278
    CLOUDINARY_API_SECRET=-3Odw4nuQ9-DmSDcUpYYrVT6cGk
-   CORS_ORIGIN=https://your-frontend-url.vercel.app
+   CORS_ORIGIN=http://localhost:5173
    ```
    
    **Note**: Update `CORS_ORIGIN` after deploying frontend!
@@ -76,7 +76,7 @@ node_modules/
 5. **Deploy**:
    - Click "Create Web Service"
    - Wait for deployment (5-10 minutes)
-   - Copy your backend URL: `https://studentms-backend.onrender.com`
+   - Copy your backend URL: `https://studentms-backend-fqza.onrender.com`
 
 ---
 
@@ -122,7 +122,7 @@ npm install -g vercel
 
 4. **Add Environment Variables**:
    - Click "Environment Variables"
-   - Add: `VITE_API_BASE_URL` = `https://studentms-backend.onrender.com/api/v1`
+   - Add: `VITE_API_BASE_URL` = `https://studentms-backend-fqza.onrender.com/api/v1`
 
 5. **Deploy**:
    - Click "Deploy"
@@ -189,5 +189,5 @@ npm install -g vercel
 
 Your Student Management System is now live!
 - Frontend: https://studentms.vercel.app
-- Backend: https://studentms-backend.onrender.com
+- Backend: https://studentms-backend-fqza.onrender.com
 

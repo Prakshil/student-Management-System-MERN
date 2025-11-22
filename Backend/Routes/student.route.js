@@ -1,5 +1,5 @@
 import express from 'express';
-import auth from '../Middlewares/auth.js';
+import auth from '../Middlewares/auth.middleware.js';
 import { upload } from '../Middlewares/multer.middleware.js';
 const router = express.Router();
 import {createStudent, getAllStudents, singleStudent, updateStudent, deleteStudent} from '../Controllers/student.controller.js';

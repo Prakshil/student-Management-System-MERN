@@ -32,4 +32,7 @@ const auth = async (req, res, next) => {
         return res.status(401).json(new ApiError(401, "Unauthorized: Invalid or expired token"));
     }
 };
+
+// Export as both default and named export for compatibility
+export const isAuthenticated = auth;
 export default auth;    

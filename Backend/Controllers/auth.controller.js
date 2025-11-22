@@ -25,6 +25,34 @@ export const validateOtp = async (req, res) => {
     if (!ok) {
       return res.status(400).json(new ApiError(400, "Invalid or expired OTP"));
     }
+    
+    // Find user and generate token for auto-login
+    const User = (await import('../Models/user.model.js')).default;
+    const jwt = (await import('jsonwebtoken')).default;
+    
+    const user = await User.findOne({ email });
+    if (user) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { 
+        expiresIn: process.env.JWT_EXPIRES_IN || '7d' 
+      });
+      
+      res.cookie('token', token, { 
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production', 
+        sameSite: 'lax' 
+      });
+      
+      const safeUser = user.toObject ? user.toObject() : user;
+      delete safeUser.password;
+      
+      return res.status(200).json(new ApiResponse(200, { 
+        email, 
+        verified: true, 
+        user: safeUser, 
+        token 
+      }, "OTP verified and logged in"));
+    }
+    
     return res.status(200).json(new ApiResponse(200, { email, verified: true }, "OTP verified"));
   } catch (error) {
     return res.status(500).json(new ApiError(500, "Failed to verify OTP", error.message));

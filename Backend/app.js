@@ -5,6 +5,7 @@ import cors from 'cors';
 import ConnectDB from './Config/dbConnect.js';
 import studentRoute from './Routes/student.route.js';
 import userRoute from './Routes/user.route.js';
+import adminRoute from './Routes/admin.route.js';
 import errorHandler from './Middlewares/errorHandler.js';
 dotenv.config();
 
@@ -50,6 +51,11 @@ app.use('/api/v1', userRoute);
 // https://localhost:5000/api/v1/user
 // https://localhost:5000/api/v1/update/user
 // https://localhost:5000/api/v1/delete/user
+
+app.use('/api/v1/admin', adminRoute);
+// https://localhost:5000/api/v1/admin/stats
+// https://localhost:5000/api/v1/admin/users
+// https://localhost:5000/api/v1/admin/users/:id
 
 // Global error handler should be the last middleware
 app.use(errorHandler);

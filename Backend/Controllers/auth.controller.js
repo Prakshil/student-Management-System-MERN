@@ -20,17 +20,19 @@ export const requestOtp = async (req, res) => {
     await createOrUpdateOtp(email, otp);
     console.log(`OTP saved to database for ${email}`);
     
-    // Try to send email
-    try {
-      await sendOtpEmail(email, otp);
-      console.log(`OTP email sent successfully to ${email}`);
-    } catch (emailError) {
-      console.error('Email sending error:', emailError);
-      // OTP is still saved in DB, so user can still verify if they got it through other means
-      return res.status(200).json(new ApiResponse(200, { email }, "OTP generated (email may be delayed)"));
-    }
+    // Send response immediately - don't wait for email
+    res.status(200).json(new ApiResponse(200, { email }, "OTP sent successfully"));
     
-    return res.status(200).json(new ApiResponse(200, { email }, "OTP sent successfully"));
+    // Send email asynchronously (fire and forget)
+    sendOtpEmail(email, otp)
+      .then(() => {
+        console.log(`OTP email sent successfully to ${email}`);
+      })
+      .catch((emailError) => {
+        console.error('Email sending error:', emailError.message);
+        // Email failed but OTP is still in DB, user can still verify
+      });
+    
   } catch (error) {
     console.error('Request OTP error:', error);
     return res.status(500).json(new ApiError(500, "Failed to send OTP", error.message));

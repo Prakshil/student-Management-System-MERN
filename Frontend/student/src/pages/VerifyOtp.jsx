@@ -40,7 +40,12 @@ const VerifyOtp = () => {
       const response = await authAPI.requestOtp(email);
       
       if (response.success) {
-        setSuccess('OTP sent to your email successfully!');
+        // Check if OTP is in response (development mode)
+        if (response.data.otp) {
+          setSuccess(`OTP sent! Development mode - Your OTP is: ${response.data.otp}`);
+        } else {
+          setSuccess('OTP sent to your email successfully!');
+        }
         setStep('otp');
       } else {
         setError(response.message || 'Failed to send OTP');

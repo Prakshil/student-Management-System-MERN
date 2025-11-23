@@ -20,8 +20,14 @@ export const requestOtp = async (req, res) => {
     await createOrUpdateOtp(email, otp);
     console.log(`OTP saved to database for ${email}`);
     
+    // In development, return OTP in response for testing
+    const isDev = process.env.NODE_ENV !== 'production';
+    
     // Send response immediately - don't wait for email
-    res.status(200).json(new ApiResponse(200, { email }, "OTP sent successfully"));
+    res.status(200).json(new ApiResponse(200, { 
+      email,
+      ...(isDev && { otp, message: 'Development mode: OTP included in response' })
+    }, "OTP sent successfully"));
     
     // Send email asynchronously (fire and forget)
     sendOtpEmail(email, otp)

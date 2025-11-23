@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { LoaderTwo } from '@/components/ui/loader';
 import { ArrowLeft } from 'lucide-react';
 
@@ -267,6 +268,21 @@ const EditProfile = () => {
                   onChange={handleChange}
                   className="bg-neutral-800/50 border-purple-500/20 text-white placeholder:text-neutral-500 focus:border-purple-500/40"
                 />
+                {formData.skills && (
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {formData.skills.split(',').map((skill, index) => {
+                      const trimmedSkill = skill.trim();
+                      return trimmedSkill ? (
+                        <Badge
+                          key={index}
+                          className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-purple-500/30 text-purple-300"
+                        >
+                          {trimmedSkill}
+                        </Badge>
+                      ) : null;
+                    })}
+                  </div>
+                )}
               </div>
 
               <div className="flex gap-4">

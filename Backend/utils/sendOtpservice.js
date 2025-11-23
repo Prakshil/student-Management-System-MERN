@@ -6,18 +6,28 @@ import Otp from '../Models/otp.model.js';
 export const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 export const sendOtpEmail = async (email, otp) => {
+  console.log('Creating email transporter...');
   const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 587,
-    secure: false, // Use TLS for port 587
+    service: 'gmail', // Use Gmail service directly
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
-    connectionTimeout: 10000, // 10 second timeout
-    greetingTimeout: 5000,
-    socketTimeout: 15000,
+    tls: {
+      rejectUnauthorized: false // Allow self-signed certificates
+    },
+    debug: true, // Enable debug output
+    logger: true // Log to console
   });
+
+  console.log('Verifying transporter connection...');
+  try {
+    await transporter.verify();
+    console.log('Transporter verified successfully');
+  } catch (verifyError) {
+    console.error('Transporter verification failed:', verifyError);
+    throw verifyError;
+  }
 
   const mailOptions = {
     from: `"StudentMS" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
@@ -37,7 +47,12 @@ export const sendOtpEmail = async (email, otp) => {
     text: `Your OTP code is ${otp}. This code expires in 10 minutes.`,
   };
 
-  await transporter.sendMail(mailOptions);
+  console.log(`Sending email to ${email}...`);
+  const info = await transporter.sendMail(mailOptions);
+  console.log('Email sent successfully:', info.messageId);
+  console.log('Preview URL:', nodemailer.getTestMessageUrl(info));
+  
+  return info;
 };
 
 export const createOrUpdateOtp = async (email, otp) => {

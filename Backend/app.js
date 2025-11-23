@@ -26,18 +26,24 @@ app.use(cors({
         
         // Allow all Vercel deployment URLs (production and previews)
         const isVercelDomain = origin.includes('student-management-system-mern') && 
-                               (origin.includes('.vercel.app') || origin.includes('prakshils-projects.vercel.app'));
+                               origin.includes('.vercel.app');
         
         if (allowedOrigins.indexOf(origin) !== -1 || isVercelDomain) {
             callback(null, true);
         } else {
-            callback(new Error('Not allowed by CORS'));
+            callback(null, true); // Temporarily allow all for debugging
         }
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+    exposedHeaders: ['Set-Cookie'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
 }));
+
+// Handle preflight requests explicitly
+app.options('*', cors());
 
 app.use(express.json());
 app.use(cookieParser());

@@ -15,12 +15,25 @@ const HOSTNAME = process.env.HOSTNAME || 'localhost';
 
 // CORS configuration - MUST be before routes
 app.use(cors({
-    origin: [
-        'https://student-management-system-mern-rose.vercel.app',
-        'https://student-management-system-mern-94q4y37m-prakshils-projects.vercel.app',
-        'http://localhost:5173',
-        'http://localhost:3000'
-    ],
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        
+        const allowedOrigins = [
+            'http://localhost:5173',
+            'http://localhost:3000',
+        ];
+        
+        // Allow all Vercel deployment URLs (production and previews)
+        const isVercelDomain = origin.includes('student-management-system-mern') && 
+                               (origin.includes('.vercel.app') || origin.includes('prakshils-projects.vercel.app'));
+        
+        if (allowedOrigins.indexOf(origin) !== -1 || isVercelDomain) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],

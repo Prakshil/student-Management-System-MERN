@@ -13,27 +13,19 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const HOSTNAME = process.env.HOSTNAME || 'localhost';
 
-ConnectDB()
-    .then(() => {
-        console.log(`Database ${process.env.DB_NAME} connected successfully`);
-        // Start the server or perform other actions
-        app.listen(PORT, () => {
-            console.log(`server is listening on http://${HOSTNAME}:${PORT}`);
-        });
-    })
-    .catch((error) => {
-        console.error("Database connection failed:", error);
-    });
-
-
+// CORS configuration - MUST be before routes
 app.use(cors({
     origin: [
-        process.env.CORS_ORIGIN || 'http://localhost:3000',
         'https://student-management-system-mern-rose.vercel.app',
-        'http://localhost:5173'
+        'https://student-management-system-mern-94q4y37m-prakshils-projects.vercel.app',
+        'http://localhost:5173',
+        'http://localhost:3000'
     ],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
 app.use(express.json());
 app.use(cookieParser());
 
@@ -63,3 +55,16 @@ app.use('/api/v1/admin', adminRoute);
 
 // Global error handler should be the last middleware
 app.use(errorHandler);
+
+// Database connection and server start
+ConnectDB()
+    .then(() => {
+        console.log(`Database ${process.env.DB_NAME} connected successfully`);
+        // Start the server or perform other actions
+        app.listen(PORT, () => {
+            console.log(`server is listening on http://${HOSTNAME}:${PORT}`);
+        });
+    })
+    .catch((error) => {
+        console.error("Database connection failed:", error);
+    });

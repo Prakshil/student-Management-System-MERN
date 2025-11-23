@@ -5,6 +5,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000
 const api = axios.create({
   baseURL: API_BASE_URL,
   withCredentials: true,
+  timeout: 60000, // 60 second timeout for Render cold starts
   headers: {
     'Content-Type': 'application/json',
   },
@@ -51,12 +52,16 @@ export const authAPI = {
   },
 
   requestOtp: async (email) => {
-    const response = await api.post('/auth/request-otp', { email });
+    const response = await api.post('/auth/request-otp', { email }, {
+      timeout: 60000 // Extra timeout for potential cold start
+    });
     return response.data;
   },
 
   verifyOtp: async (email, otp) => {
-    const response = await api.post('/auth/verify-otp', { email, otp });
+    const response = await api.post('/auth/verify-otp', { email, otp }, {
+      timeout: 30000 // 30 seconds for verification
+    });
     return response.data;
   },
 

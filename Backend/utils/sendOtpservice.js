@@ -8,20 +8,36 @@ export const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toS
 export const sendOtpEmail = async (email, otp) => {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT) || 465,
-    secure: String(process.env.SMTP_SECURE || 'true').toLowerCase() === 'true',
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: false, // Use TLS for port 587
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
+    connectionTimeout: 10000, // 10 second timeout
+    greetingTimeout: 5000,
+    socketTimeout: 15000,
   });
 
-  await transporter.sendMail({
-    from: process.env.FROM_EMAIL || process.env.SMTP_USER,
+  const mailOptions = {
+    from: `"StudentMS" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
     to: email,
-    subject: 'Your OTP Code',
-    text: `Your OTP code is ${otp}`,
-  });
+    subject: 'Your OTP Code - StudentMS',
+    html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <h2 style="color: white;">Your Verification Code</h2>
+        <p>Use this code to verify your email:</p>
+        <div style="background: white; color: #667eea; font-size: 32px; font-weight: bold; padding: 20px; text-align: center; border-radius: 10px; letter-spacing: 8px;">
+          ${otp}
+        </div>
+        <p style="margin-top: 20px; font-size: 14px;">This code expires in 10 minutes.</p>
+        <p style="font-size: 12px; opacity: 0.8;">If you didn't request this code, please ignore this email.</p>
+      </div>
+    `,
+    text: `Your OTP code is ${otp}. This code expires in 10 minutes.`,
+  };
+
+  await transporter.sendMail(mailOptions);
 };
 
 export const createOrUpdateOtp = async (email, otp) => {

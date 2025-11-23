@@ -46,7 +46,12 @@ const VerifyOtp = () => {
         setError(response.message || 'Failed to send OTP');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to send OTP. Please try again.');
+      console.error('Request OTP error:', err);
+      if (err.code === 'ECONNABORTED') {
+        setError('Server is waking up, please try again in a moment...');
+      } else {
+        setError(err.response?.data?.message || 'Failed to send OTP. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -86,7 +91,12 @@ const VerifyOtp = () => {
         setError(response.message || 'Invalid OTP');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid or expired OTP. Please try again.');
+      console.error('Verify OTP error:', err);
+      if (err.code === 'ECONNABORTED') {
+        setError('Request timeout. Please try again.');
+      } else {
+        setError(err.response?.data?.message || 'Invalid or expired OTP. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -166,7 +176,12 @@ const VerifyOtp = () => {
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:opacity-90 transition-opacity text-white font-semibold py-6"
               >
-                {loading ? <LoaderTwo /> : 'Send OTP'}
+                {loading ? (
+                  <div className="flex flex-col items-center gap-1">
+                    <LoaderTwo />
+                    <span className="text-xs">Server may take 30-60s to wake up...</span>
+                  </div>
+                ) : 'Send OTP'}
               </Button>
             </form>
           ) : (

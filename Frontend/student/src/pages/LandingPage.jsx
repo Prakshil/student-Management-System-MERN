@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Navbar from '@/components/navbar/Navbar';
+import Navbar from '@/components/Navbar/Navbar';
 import Hero from '@/components/hero/Hero';
 import Features from '@/components/features/Features';
 import Testimonials from '@/components/testimonials/Testimonials';

@@ -27,7 +27,11 @@ ConnectDB()
 
 
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
+    origin: [
+        process.env.CORS_ORIGIN || 'http://localhost:3000',
+        'https://student-management-system-mern-rose.vercel.app',
+        'http://localhost:5173'
+    ],
     credentials: true,
 }));
 app.use(express.json());

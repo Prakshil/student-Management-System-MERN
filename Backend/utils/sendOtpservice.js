@@ -7,8 +7,12 @@ export const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toS
 
 export const sendOtpEmail = async (email, otp) => {
   console.log('Creating email transporter...');
-  const transporter = nodemailer.createTransport({
-    service: 'gmail', // Use Gmail service directly
+  
+  // Use explicit host/port configuration (like authflow project)
+  const transportConfig = {
+    host: process.env.SMTP_HOST,
+    port: Number(process.env.SMTP_PORT || 587),
+    secure: false, // Use STARTTLS (true only for port 465)
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
@@ -18,7 +22,9 @@ export const sendOtpEmail = async (email, otp) => {
     },
     debug: true, // Enable debug output
     logger: true // Log to console
-  });
+  };
+  
+  const transporter = nodemailer.createTransport(transportConfig);
 
   console.log('Verifying transporter connection...');
   try {
@@ -30,7 +36,7 @@ export const sendOtpEmail = async (email, otp) => {
   }
 
   const mailOptions = {
-    from: `"StudentMS" <${process.env.FROM_EMAIL || process.env.SMTP_USER}>`,
+    from: process.env.EMAIL_FROM || `"StudentMS" <${process.env.SMTP_USER}>`,
     to: email,
     subject: 'Your OTP Code - StudentMS',
     html: `

@@ -149,20 +149,6 @@ const Dashboard = () => {
 
               <div className="flex items-center gap-4">
                 <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-neutral-400 hover:text-white"
-                >
-                  <Bell className="h-5 w-5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-neutral-400 hover:text-white"
-                >
-                  <Settings className="h-5 w-5" />
-                </Button>
-                <Button
                   onClick={handleLogout}
                   variant="ghost"
                   className="text-red-400 hover:text-red-300 hover:bg-red-500/10"

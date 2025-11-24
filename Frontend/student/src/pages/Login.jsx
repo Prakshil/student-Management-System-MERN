@@ -139,7 +139,7 @@ const Login = () => {
               to="/verify-otp"
               className="text-purple-400 hover:text-purple-300 text-sm transition-colors block"
             >
-              Verify with OTP
+              Verify with OTP(In development phase)
             </Link>
             <div className="text-neutral-400 text-sm">
               Don't have an account?{' '}

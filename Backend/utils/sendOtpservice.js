@@ -6,7 +6,14 @@ import Otp from '../Models/otp.model.js';
 export const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString();
 
 export const sendOtpEmail = async (email, otp) => {
-  console.log('Creating email transporter...');
+  console.log('========== EMAIL SERVICE DEBUG ==========');
+  console.log('Environment Check:');
+  console.log('SMTP_HOST:', process.env.SMTP_HOST);
+  console.log('SMTP_PORT:', process.env.SMTP_PORT);
+  console.log('SMTP_USER:', process.env.SMTP_USER ? '***SET***' : 'MISSING');
+  console.log('SMTP_PASS:', process.env.SMTP_PASS ? '***SET***' : 'MISSING');
+  console.log('EMAIL_FROM:', process.env.EMAIL_FROM || 'NOT SET (using fallback)');
+  console.log('=========================================');
   
   // Use explicit host/port configuration (like authflow project)
   const transportConfig = {

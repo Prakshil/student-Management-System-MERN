@@ -32,10 +32,13 @@ export const requestOtp = async (req, res) => {
     // Send email asynchronously (fire and forget)
     sendOtpEmail(email, otp)
       .then(() => {
-        console.log(`OTP email sent successfully to ${email}`);
+        console.log(`✅ OTP email sent successfully to ${email}`);
       })
       .catch((emailError) => {
-        console.error('Email sending error:', emailError.message);
+        console.error('❌ EMAIL SENDING FAILED ❌');
+        console.error('Error message:', emailError.message);
+        console.error('Error stack:', emailError.stack);
+        console.error('Full error:', JSON.stringify(emailError, null, 2));
         // Email failed but OTP is still in DB, user can still verify
       });
     

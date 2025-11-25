@@ -196,24 +196,6 @@ GET    /api/admin/dashboard     // Admin dashboard stats
 GET    /api/admin/users         // Get all users
 ```
 
-## 📸 Screenshots
-
-### Landing Page
-*Clean, modern, and doesn't assault your eyeballs*
-![Landing Page](https://via.placeholder.com/800x400/667eea/ffffff?text=Landing+Page)
-
-### Login with OTP
-*Because typing passwords is overrated*
-![OTP Login](https://via.placeholder.com/800x400/764ba2/ffffff?text=OTP+Authentication)
-
-### Student Dashboard
-*All your students in one beautiful view*
-![Dashboard](https://via.placeholder.com/800x400/f093fb/ffffff?text=Student+Dashboard)
-
-### Admin Panel
-*Power at your fingertips*
-![Admin Panel](https://via.placeholder.com/800x400/4facfe/ffffff?text=Admin+Panel)
-
 ## 🏗️ Project Structure
 ```
 student-Management-System-MERN/
